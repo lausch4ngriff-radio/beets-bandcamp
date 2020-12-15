@@ -3,12 +3,12 @@ from setuptools import setup
 setup(
     name='beets-bandcamp',
     version='0.1.4',
-    description='Plugin for beets (http://beets.io) to use bandcamp as an autotagger source.',
+    description='Forked and updated Plugin for beets (http://beets.io) to use bandcamp as an autotagger source.',
     long_description=open('README.rst').read(),
-    author='Ariel George',
-    author_email='unarbolito@gmail.com',
-    url='https://github.com/unrblt/beets-bandcamp',
-    download_url='https://github.com/unrblt/beets-bandcamp/archive/v0.1.3.tar.gz',
+    author='Erik Milach',
+    author_email='emilach82@gmail.com',
+    url='https://github.com/lausch4ngriff-radio/beets-bandcamp.git',
+    download_url='https://github.com/lausch4ngriff-radio/beets-bandcamp/archive/v0.1.4.tar.gz',
     license='GPL-2.0',
     platforms='ALL',
 

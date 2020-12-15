@@ -60,7 +60,8 @@ class BandcampPlugin(plugins.BeetsPlugin):
         if self.config['art']:
             for plugin in plugins.find_plugins():
                 if isinstance(plugin, fetchart.FetchArtPlugin):
-                    plugin.sources = [BandcampAlbumArt(plugin._log, self.config)] + plugin.sources
+                    plugin.sources = [BandcampAlbumArt(
+                        plugin._log, self.config)] + plugin.sources
                     fetchart.ART_SOURCES['bandcamp'] = BandcampAlbumArt
                     fetchart.SOURCE_NAMES[BandcampAlbumArt] = 'bandcamp'
                     break
@@ -137,9 +138,13 @@ class BandcampPlugin(plugins.BeetsPlugin):
             # visible on the page and you can't search by the id, so we need to use
             # the url as id.
             album_id = url
-            artist = name_section.find(attrs={'itemprop': 'byArtist'}) .text.strip()
-            release = html.find('meta', attrs={'itemprop': 'datePublished'})['content']
+            artist = name_section.find(
+                attrs={'itemprop': 'byArtist'}).text.strip()
+
+            release = html.find('meta', attrs={'itemprop': 'datePublished'})[
+                'content']
             release = isodate.parse_date(release)
+
             artist_url = url.split('/album/')[0]
             tracks = []
             for row in html.find(id='track_table').find_all(attrs={'itemprop': 'tracks'}):
@@ -155,7 +160,8 @@ class BandcampPlugin(plugins.BeetsPlugin):
             self._log.debug("Communication error while fetching album {0!r}: "
                             "{1}".format(url, e))
         except (TypeError, AttributeError) as e:
-            self._log.debug("Unexpected html while scraping album {0!r}: {1}".format(url, e))
+            self._log.debug(
+                "Unexpected html while scraping album {0!r}: {1}".format(url, e))
         except BandcampException as e:
             self._log.debug('Error: {0}'.format(e))
 
@@ -173,14 +179,16 @@ class BandcampPlugin(plugins.BeetsPlugin):
             name_section = html.find(id='name-section')
             title = name_section.find(attrs={'itemprop': 'name'}).text.strip()
             artist_url = url.split('/track/')[0]
-            artist = name_section.find(attrs={'itemprop': 'byArtist'}).text.strip()
+            artist = name_section.find(
+                attrs={'itemprop': 'byArtist'}).text.strip()
             if self.config['split_artist_title']:
                 artist_from_title, title = self._split_artist_title(title)
                 if artist_from_title is not None:
                     artist = artist_from_title
 
             try:
-                duration = html.find('meta', attrs={'itemprop': 'duration'})['content']
+                duration = html.find('meta', attrs={'itemprop': 'duration'})[
+                    'content']
                 track_length = float(duration)
                 if track_length == 0:
                     track_length = None
@@ -194,7 +202,7 @@ class BandcampPlugin(plugins.BeetsPlugin):
             self._log.debug("Communication error while fetching track {0!r}: "
                             "{1}".format(url, e))
 
-    def add_lyrics(self, item, write = False):
+    def add_lyrics(self, item, write=False):
         """Fetch and store lyrics for a single item. If ``write``, then the
         lyrics will also be written to the file itself."""
         # Skip if the item already has lyrics.
@@ -243,8 +251,10 @@ class BandcampPlugin(plugins.BeetsPlugin):
             # Search bandcamp until min_candidates results have been found or
             # we hit the last page in the results.
             while len(urls) < self.config['min_candidates'].as_number():
-                self._log.debug('Searching {}, page {}'.format(search_type, page))
-                results = self._get(BANDCAMP_SEARCH.format(query=query, page=page))
+                self._log.debug(
+                    'Searching {}, page {}'.format(search_type, page))
+                results = self._get(
+                    BANDCAMP_SEARCH.format(query=query, page=page))
                 clazz = 'searchresult {0}'.format(search_type)
                 for result in results.find_all('li', attrs={'class': clazz}):
                     a = result.find(attrs={'class': 'heading'}).a
@@ -284,10 +294,12 @@ class BandcampPlugin(plugins.BeetsPlugin):
             artist, title = self._split_artist_title(title)
         track_url = title_html.find(attrs={'itemprop': 'url'})
         if track_url is None:
-            raise BandcampException('No track url (id) for track {0} - {1}'.format(track_num, title))
+            raise BandcampException(
+                'No track url (id) for track {0} - {1}'.format(track_num, title))
         track_id = track_url['href']
         try:
-            duration = title_html.find('meta', attrs={'itemprop': 'duration'})['content']
+            duration = title_html.find(
+                'meta', attrs={'itemprop': 'duration'})['content']
             duration = duration.replace('P', 'PT')
             track_length = isodate.parse_duration(duration).total_seconds()
         except TypeError:
@@ -316,8 +328,10 @@ class BandcampAlbumArt(fetchart.RemoteArtSource):
                 headers = {'User-Agent': USER_AGENT}
                 r = requests.get(album.mb_albumid, headers=headers)
                 r.raise_for_status()
-                album_html = BeautifulSoup(r.text, 'html.parser').find(id='tralbumArt')
-                image_url = album_html.find('a', attrs={'class': 'popupImage'})['href']
+                album_html = BeautifulSoup(
+                    r.text, 'html.parser').find(id='tralbumArt')
+                image_url = album_html.find(
+                    'a', attrs={'class': 'popupImage'})['href']
                 yield self._candidate(url=image_url,
                                       match=fetchart.Candidate.MATCH_EXACT)
             except requests.exceptions.RequestException as e:
